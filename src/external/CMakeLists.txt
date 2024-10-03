@@ -90,4 +90,7 @@ if ((NOT MESHLAB_BUILD_MINI) AND MESHLAB_ALLOW_OPTIONAL_EXTERNAL_LIBRARIES)
 
 	# libe57Format - optional, for io_e57
 	include(${CMAKE_CURRENT_SOURCE_DIR}/e57.cmake)
+
+	# ReebHanTun 
+        include(${CMAKE_CURRENT_SOURCE_DIR}/reebhantun.cmake)
 endif()
