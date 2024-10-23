@@ -29,8 +29,9 @@ if(TARGET external-lib3mf)
 
     # add this line to ignore warning C4267 (the warning is about converting a size_t to an int) and C4018 that occurs
     # when comparing different data types like int (signed) and size_t (unsigned)
-    add_compile_options(/wd4267 /wd4018)
-
+    if (MSVC)
+			add_compile_options(/wd4267 /wd4018)
+		endif()
     add_meshlab_plugin(io_3mf ${SOURCES} ${HEADERS})
 
     target_link_libraries(io_3mf PUBLIC external-lib3mf)
