@@ -36,22 +36,21 @@ add sampleplugins
 
 ****************************************************************************/
 
-#ifndef FILTERSAMPLE_PLUGIN_H
-#define FILTERSAMPLE_PLUGIN_H
+#ifndef FILTER_REEBHANTHUN_H
+#define FILTER_REEBHANTHUN_H
 
 #include <common/plugins/interfaces/filter_plugin.h>
 
-class FilterSamplePlugin : public QObject, public FilterPlugin
+class FilterReebHanTun : public QObject, public FilterPlugin
 {
 	Q_OBJECT
 	MESHLAB_PLUGIN_IID_EXPORTER(FILTER_PLUGIN_IID)
 	Q_INTERFACES(FilterPlugin)
 
 public:
-	enum { FP_MOVE_VERTEX  } ;
+	enum { FP_COMPUTE_REEB_HAN_THUN_  } ;
 
-	FilterSamplePlugin();
-	virtual ~FilterSamplePlugin();
+	FilterReebHanTun();
 
 	QString pluginName() const;
 
@@ -69,14 +68,5 @@ public:
 			MeshDocument &md,
 			unsigned int& postConditionMask,
 			vcg::CallBackPos * cb);
-
-private:
-	bool vertexDisplacement(
-			MeshDocument &md,
-			vcg::CallBackPos *cb,
-			int randomSeed,
-			bool updateNormals,
-			Scalarm max_displacement);
 };
-
 #endif

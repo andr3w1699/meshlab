@@ -45,7 +45,7 @@ if(ALLOW_DOWNLOAD_REEBHANTUN)
 	if(EXISTS ${REEBHANTUN_CHECK})
 		message(STATUS "- ReebHanTun - using downloaded source")
 		# TO DO al momento la repo ReebHanTun è scaricata ma "sganciata"
-		add_subdirectory(${REEBHANTUN_DIR})
+		# add_subdirectory(${REEBHANTUN_DIR})
 		#add_library(external-reebhantun INTERFACE)
 		#target_link_libraries(external-reebhantun INTERFACE reeb-hantun)
 	endif()

@@ -21,7 +21,7 @@
 *                                                                           *
 ****************************************************************************/
 
-#include "filter_sample.h"
+#include "filter_reebhanthun.h"
 
 /**
  * @brief Constructor usually performs only two simple tasks of filling the two lists
@@ -29,21 +29,18 @@
  *  - actionList with the corresponding actions. If you want to add icons to
  *  your filtering actions you can do here by construction the QActions accordingly
  */
-FilterSamplePlugin::FilterSamplePlugin() 
-{ 
-	typeList = {FP_MOVE_VERTEX};
+
+FilterReebHanTun::FilterReebHanTun()
+{
+	typeList = {FP_COMPUTE_REEB_HAN_THUN_};
 
 	for(ActionIDType tt : types())
 		actionList.push_back(new QAction(filterName(tt), this));
 }
 
-FilterSamplePlugin::~FilterSamplePlugin()
-{
-}
 
-QString FilterSamplePlugin::pluginName() const
-{
-    return "FilterSample";
+QString FilterReebHanTun::pluginName() const {
+    return "ReebHanTun Filter";
 }
 
 /**
@@ -52,15 +49,8 @@ QString FilterSamplePlugin::pluginName() const
  * @param filterId: the id of the filter
  * @return the name of the filter
  */
-QString FilterSamplePlugin::filterName(ActionIDType filterId) const
-{
-	switch(filterId) {
-	case FP_MOVE_VERTEX :
-		return "Compute Handle and Tunnel loops";
-	default :
-		assert(0);
-		return QString();
-	}
+QString FilterReebHanTun::filterName(ActionIDType filter) const {
+    return "ReebHanTun";
 }
 
 /**
@@ -69,15 +59,8 @@ QString FilterSamplePlugin::filterName(ActionIDType filterId) const
  * @param f
  * @return
  */
-QString FilterSamplePlugin::pythonFilterName(ActionIDType f) const
-{
-	switch(f) {
-	case FP_MOVE_VERTEX :
-		return "apply_coord_random_displacement";
-	default :
-		assert(0);
-		return QString();
-	}
+QString FilterReebHanTun::pythonFilterName(ActionIDType f) const {
+    return (f == FP_COMPUTE_REEB_HAN_THUN_) ? "compute_reeb_graph" : "unknown";
 }
 
 
@@ -87,16 +70,10 @@ QString FilterSamplePlugin::pythonFilterName(ActionIDType f) const
  * @param filterId: the id of the filter
  * @return an info string of the filter
  */
- QString FilterSamplePlugin::filterInfo(ActionIDType filterId) const
-{
-	switch(filterId) {
-	case FP_MOVE_VERTEX :
-		return "Move the vertices of the mesh of a random quantity.";
-	default :
-		assert(0);
-		return "Unknown Filter";
-	}
+QString FilterReebHanTun::filterInfo(ActionIDType filter) const {
+    return "Computes the Reeb Graph of the mesh using the ReebHanTun method.";
 }
+
 
  /**
  * @brief The FilterClass describes in which generic class of filters it fits.
@@ -105,31 +82,23 @@ QString FilterSamplePlugin::pythonFilterName(ActionIDType f) const
  * @param a: the action of the filter
  * @return the class od the filter
  */
-FilterSamplePlugin::FilterClass FilterSamplePlugin::getClass(const QAction *a) const
-{
-	switch(ID(a)) {
-	case FP_MOVE_VERTEX :
-		return FilterPlugin::Smoothing;
-	default :
-		assert(0);
-		return FilterPlugin::Generic;
-	}
+FilterPlugin::FilterClass FilterReebHanTun::getClass(const QAction*) const {
+    return FilterPlugin::Smoothing;
 }
 
 /**
  * @brief FilterSamplePlugin::filterArity
  * @return
  */
-FilterPlugin::FilterArity FilterSamplePlugin::filterArity(const QAction*) const
-{
-	return SINGLE_MESH;
+FilterPlugin::FilterArity FilterReebHanTun::filterArity(const QAction* ) const {
+    return SINGLE_MESH;
 }
 
 /**
  * @brief FilterSamplePlugin::getPreConditions
  * @return
  */
-int FilterSamplePlugin::getPreConditions(const QAction*) const
+int FilterReebHanTun::getPreConditions(const QAction*) const
 {
 	return MeshModel::MM_NONE;
 }
@@ -138,7 +107,7 @@ int FilterSamplePlugin::getPreConditions(const QAction*) const
  * @brief FilterSamplePlugin::postCondition
  * @return
  */
-int FilterSamplePlugin::postCondition(const QAction*) const
+int FilterReebHanTun::postCondition(const QAction*) const
 {
 	return MeshModel::MM_VERTCOORD | MeshModel::MM_FACENORMAL | MeshModel::MM_VERTNORMAL;
 }
@@ -155,11 +124,11 @@ int FilterSamplePlugin::postCondition(const QAction*) const
  * @param m
  * @param parlst
  */
-RichParameterList FilterSamplePlugin::initParameterList(const QAction *action,const MeshModel &m)
+RichParameterList FilterReebHanTun::initParameterList(const QAction *action,const MeshModel &m)
 {
 	RichParameterList parlst;
 	switch(ID(action)) {
-	case FP_MOVE_VERTEX :
+	case FP_COMPUTE_REEB_HAN_THUN_ :
 		parlst.addParam(RichBool ("UpdateNormals", true, "Recompute normals", "Toggle the recomputation of the normals after the random displacement.\n\nIf disabled the face normals will remains unchanged resulting in a visually pleasant effect."));
 		parlst.addParam(RichPercentage("Displacement", m.cm.bbox.Diag()/100.0f,0.0f,m.cm.bbox.Diag(), "Max displacement", "The vertex are displaced of a vector whose norm is bounded by this value"));
 		parlst.addParam(RichInt("RandomSeed", 0, "Random Seed", "The seed used to generate random values. If seed is zero no random seed is used"));
@@ -178,11 +147,10 @@ RichParameterList FilterSamplePlugin::initParameterList(const QAction *action,co
  * @param cb: callback object to tell MeshLab the percentage of execution of the filter
  * @return true if the filter has been applied correctly, false otherwise
  */
-std::map<std::string, QVariant> FilterSamplePlugin::applyFilter(const QAction * action, const RichParameterList & parameters, MeshDocument &md, unsigned int& /*postConditionMask*/, vcg::CallBackPos *cb)
+std::map<std::string, QVariant> FilterReebHanTun::applyFilter(const QAction * action, const RichParameterList & parameters, MeshDocument &md, unsigned int& /*postConditionMask*/, vcg::CallBackPos *cb)
 {
 	switch(ID(action)) {
-	case FP_MOVE_VERTEX :
-		vertexDisplacement(md, cb, parameters.getInt("RandomSeed"), parameters.getBool("UpdateNormals"), parameters.getAbsPerc("Displacement"));
+	case FP_COMPUTE_REEB_HAN_THUN_ :
 		break;
 	default :
 		wrongActionCalled(action);
@@ -190,39 +158,4 @@ std::map<std::string, QVariant> FilterSamplePlugin::applyFilter(const QAction * 
 	return std::map<std::string, QVariant>();
 }
 
-bool FilterSamplePlugin::vertexDisplacement(
-	MeshDocument &md,
-	vcg::CallBackPos *cb,
-	int randomSeed,
-	bool updateNormals,
-	Scalarm max_displacement)
-{
-	CMeshO &m = md.mm()->cm;
-	if(randomSeed==0) srand(time(NULL));
-	else srand(randomSeed);
-
-	for(unsigned int i = 0; i< m.vert.size(); i++){
-		// Typical usage of the callback for showing a nice progress bar in the bottom.
-		// First parameter is a 0..100 number indicating percentage of completion, the second is an info string.
-		cb(100*i/m.vert.size(), "Randomly Displacing...");
-		
-		Scalarm rndax = (Scalarm(2.0*rand())/float(RAND_MAX) - 1.0 ) *max_displacement;
-		Scalarm rnday = (Scalarm(2.0*rand())/float(RAND_MAX) - 1.0 ) *max_displacement;
-		Scalarm rndaz = (Scalarm(2.0*rand())/float(RAND_MAX) - 1.0 ) *max_displacement;
-		m.vert[i].P() += Point3m(rndax,rnday,rndaz); 
-	}
-
-	// Log function dump textual info in the lower part of the MeshLab screen.
-	log("Successfully displaced %i vertices",m.vn);
-
-	// to access to the parameters of the filter dialog simply use the getXXXX function of the FilterParameter Class
-	if(updateNormals){
-		vcg::tri::UpdateNormal<CMeshO>::PerVertexNormalizedPerFace(m);
-	}
-
-	vcg::tri::UpdateBounding<CMeshO>::Box(m);
-
-	return true;
-}
-
-MESHLAB_PLUGIN_NAME_EXPORTER(FilterSamplePlugin)
+MESHLAB_PLUGIN_NAME_EXPORTER(FilterReebHanTun)
