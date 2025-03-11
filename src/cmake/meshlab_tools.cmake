@@ -70,7 +70,7 @@ function(download_and_unzip)
 			file(ARCHIVE_EXTRACT
 				INPUT ${ZIP}
 				DESTINATION ${DAU_DIR})
-			message(STATUS "${DAU_NAME} archive extracted.")
+			message(STATUS "${DAU_NAME} archive extracted into ${DAU_DIR}.")
 			file(REMOVE ${ZIP})
 			set(download_and_unzip_SUCCESS TRUE PARENT_SCOPE)
 			break() # done
