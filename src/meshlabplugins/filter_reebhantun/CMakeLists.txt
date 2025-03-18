@@ -11,8 +11,43 @@ set(HEADERS filter_reebhanthun.h)
 set(ANNDIR ../../external/downloads/ReebHanTun-main/ann/ANN)
 # Add as include search directory the directory where the ReebHanTun sources are located
 include_directories(${RHTDIR})
+include_directories("${RHTDIR}/CycleOptimization")
+include_directories("${RHTDIR}/CycleOptimization/Annotation")
+include_directories( ${CMAKE_SOURCE_DIR}/src "${CMAKE_SOURCE_DIR}/src/include" "${CMAKE_SOURCE_DIR}/src/CycleOptimization" "${CMAKE_SOURCE_DIR}/src/CycleOptimization/Annotation" "${CMAKE_SOURCE_DIR}/ann/") 
+
 include_directories(${RHTDIR}/../ann)
-set (CMAKE_CXX_STANDARD 11)
+
+# note: this brutal way to remove the 'register' keyword from ann sources is needed because I was not able to specify c++11 for ANN files...
+add_definitions(-Dregister=)
+
+set (ANN_SOURCES
+	${ANNDIR}/ANN.cpp
+	${ANNDIR}/ANN.h
+	${ANNDIR}/ANNperf.h
+	${ANNDIR}/ANNx.h
+	${ANNDIR}/bd_fix_rad_search.cpp
+	${ANNDIR}/bd_pr_search.cpp
+	${ANNDIR}/bd_search.cpp
+	${ANNDIR}/bd_tree.cpp
+	${ANNDIR}/bd_tree.h
+	${ANNDIR}/brute.cpp
+	${ANNDIR}/kd_dump.cpp
+	${ANNDIR}/kd_fix_rad_search.cpp
+	${ANNDIR}/kd_fix_rad_search.h
+	${ANNDIR}/kd_pr_search.cpp
+	${ANNDIR}/kd_pr_search.h
+	${ANNDIR}/kd_search.cpp
+	${ANNDIR}/kd_search.h
+	${ANNDIR}/kd_split.cpp
+	${ANNDIR}/kd_split.h
+	${ANNDIR}/kd_tree.cpp
+	${ANNDIR}/kd_tree.h
+	${ANNDIR}/kd_util.cpp
+	${ANNDIR}/kd_util.h
+	${ANNDIR}/perf.cpp
+	${ANNDIR}/pr_queue.h
+	${ANNDIR}/pr_queue_k.h
+)
 set(REEB_SOURCES 
 	${RHTDIR}/CycleOptimization/Annotation/Annotated_polyhedron_3.h
 	${RHTDIR}/CycleOptimization/Annotation/Annotated_polyhedron_items_3.h
@@ -64,43 +99,19 @@ set(REEB_SOURCES
 	${RHTDIR}/UniqueDirection.cpp
 	${RHTDIR}/UniqueDirection.h 
 	${RHTDIR}/RenderVector3.h
-	${ANNDIR}/ANN.cpp
-	${ANNDIR}/ANN.h
-	${ANNDIR}/ANNperf.h
-	${ANNDIR}/ANNx.h
-	${ANNDIR}/bd_fix_rad_search.cpp
-	${ANNDIR}/bd_pr_search.cpp
-	${ANNDIR}/bd_search.cpp
-	${ANNDIR}/bd_tree.cpp
-	${ANNDIR}/bd_tree.h
-	${ANNDIR}/brute.cpp
-	${ANNDIR}/kd_dump.cpp
-	${ANNDIR}/kd_fix_rad_search.cpp
-	${ANNDIR}/kd_fix_rad_search.h
-	${ANNDIR}/kd_pr_search.cpp
-	${ANNDIR}/kd_pr_search.h
-	${ANNDIR}/kd_search.cpp
-	${ANNDIR}/kd_search.h
-	${ANNDIR}/kd_split.cpp
-	${ANNDIR}/kd_split.h
-	${ANNDIR}/kd_tree.cpp
-	${ANNDIR}/kd_tree.h
-	${ANNDIR}/kd_util.cpp
-	${ANNDIR}/kd_util.h
-	${ANNDIR}/perf.cpp
-	${ANNDIR}/pr_queue.h
-	${ANNDIR}/pr_queue_k.h
 )
 
-add_meshlab_plugin(filter_reebhanthun ${SOURCES} ${REEB_SOURCES} ${HEADERS})
+set(ALL_SOURCES ${SOURCES} ${REEB_SOURCES} ${ANN_SOURCES} )
 
+add_meshlab_plugin(filter_reebhanthun ${ALL_SOURCES} ${HEADERS})
+set (CMAKE_CXX_STANDARD 11)
 target_link_libraries(filter_reebhanthun PRIVATE external-boost external-cgal)
 else()
 	message(
 		STATUS "Skipping filter_reebhantun - don't know about boost, cgal or libann on this system.")
 endif()
 
-
+set (CMAKE_CXX_STANDARD 11)
 
 
 
